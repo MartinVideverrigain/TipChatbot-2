@@ -14,7 +14,7 @@ var AsignaturaSchema = new Schema({
 	usuarioAsignaturas:[
 			{
 					 type: Schema.Types.ObjectId,
-					 ref: "usuarioAsignatura"
+					 ref: "UsuarioAsignatura"
 			}
 	],
 	horarios:[

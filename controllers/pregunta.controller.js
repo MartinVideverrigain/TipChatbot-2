@@ -100,7 +100,8 @@ exports.pregunta_FAQcal2 = async function (req, res) {
         suma += await myPromise();
       }
       res.json({Reply:'La cantidad de creditos que le faltan para obtener el titulo es de: '+ (252-suma)});
-  })
+    })
+ 
 };
 
 exports.pregunta_FAQcal3 = async function (req, res) {
