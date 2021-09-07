@@ -352,3 +352,16 @@ exports.usuarioAsignatura_delete = function(req,res){
     })
   })
 };
+
+
+//esta función te devuelve todos los datos que se tienen del objeto usuario buscando a partir de la cedula
+exports.usuario_details_cedula = function (req, res) {
+  console.log(req.body.cedula);
+   Usuario.findOne({ cedula: req.body.cedula}, function (err, user) {
+      if (err) {
+        console.log(err);
+        res.json({data:'Error el usuario no existe'});
+      }
+      res.json({usuario: user});
+    });
+};

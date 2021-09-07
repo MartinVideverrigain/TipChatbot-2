@@ -16,6 +16,8 @@ router.post('/listado', usuario_controller.usuario_listado);
 
 router.post('/detalle', usuario_controller.usuario_details);
 
+router.post('/detalleC', usuario_controller.usuario_details_cedula);
+
 router.post('/update', usuario_controller.usuario_update);
 
 router.post('/delete', usuario_controller.usuario_delete);
