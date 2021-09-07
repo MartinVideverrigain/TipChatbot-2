@@ -103,7 +103,8 @@ exports.pregunta_FAQcal2 = async function (req, res) {
         suma += await myPromise();
       }
       res.json({Reply:'La cantidad de creditos que le faltan para obtener el titulo es de: '+ (252-suma)});
-  })
+    })
+ 
 };
 
 //estoy en condiciones de realizar la pasantia laboral

@@ -14,12 +14,17 @@ var UsuarioSchema = new Schema({
 	usuarioAsignaturas:[
 			{
 					 type: Schema.Types.ObjectId,
-					 ref: "usuarioAsignatura"
+					 ref: "UsuarioAsignatura"
 			}
+	],
+	historialChat:[
+		{
+			type: Schema.Types.ObjectId,
+			ref: "HisotoriaChat"
+		}
 	]
 });
 
 UsuarioSchema.set('toJSON', {getters: true});
 
-// Export the model
 module.exports = mongoose.model('Usuario', UsuarioSchema);
