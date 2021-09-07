@@ -9,7 +9,9 @@ const HistorialChatScheme = new Schema({
     },
     pregunta:{type: String, required: true, max: 250},
     respuesta:{type: String, required: true, max: 250},
-    fecha: {type: String, required: true, max: 50}
+    fecha: {type: String, required: true, max: 10},
+    hora: {type: String, required: true, max: 8},
+    codAsignatura: {type: String, required: false, max: 8}
 });
 
 
