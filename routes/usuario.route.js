@@ -36,4 +36,6 @@ router.post('/usuarioAsignaturaDelete', usuario_controller.usuarioAsignatura_del
 
 router.get('/prueba', usuario_controller.prueba);
 
+router.post('/pendientes', usuario_controller.asignaturasPendientes);
+
 module.exports = router;
