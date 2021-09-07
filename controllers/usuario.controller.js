@@ -5,6 +5,7 @@ var Request = require("request");
 const Usuario = require('../models/usuario.model');
 const UsuarioAsignatura = require('../models/usuarioAsignatura.model');
 const Asignatura = require('../models/asignatura.model');
+const Previa = require('../models/previa.model');
 
 exports.usuario_nuevo = function (req, res) {
 
@@ -350,5 +351,60 @@ exports.usuarioAsignatura_delete = function (req, res) {
                 })
             })
         })
+    })
+};
+
+
+//esta función te devuelve todos los datos que se tienen del objeto usuario buscando a partir de la cedula
+exports.usuario_details_cedula = function (req, res) {
+  console.log(req.body.cedula);
+   Usuario.findOne({ cedula: req.body.cedula}, function (err, user) {
+      if (err) {
+        console.log(err);
+        res.json({data:'Error el usuario no existe'});
+      }
+      res.json({usuario: user});
+    });
+};
+
+//esta funcion te devuelve las materias previas que tenes que aporbar antes de poder cursar otra
+exports.asignaturasPendientes = async function (req, res) {
+
+    //en asig se guarda el obj asignatura que es igual al codigo que llega
+    Asignatura.findOne({ codigo: req.body.codigo}, async function (erro, asig){
+        if (erro) {
+          console.log(erro);
+              res.json({Reply:'Error la asignatura no existe'});
+        }
+        var resultado = [];
+        //en previa recorro los id de las asignaturas previas que tiene asig
+         for (const previa of asig.previas) {
+           var myPromise = () => {
+             return new Promise((resolve, reject) => {
+                 //asigP es el objeto Previa 
+               Previa.findById(previa._id).populate('asignatura').exec( function (err, asigP) {
+                    if (err) {
+                      console.log(err);
+                          res.json({Reply:'Error la asignatura no existe'});
+                    }
+                    //
+                     UsuarioAsignatura.find({ $and: [ {usuario: req.body.id}, {estado: "Exonerada"} ]}).populate('asignatura').exec( function (err, uA) {
+                          if (err) {
+                            console.log(err);
+                                res.json({Reply:'Error el usuario no existe'});
+                          }
+                          uA.find(function(item){
+                            if(String(item.asignatura._id) == String(asigP.asignatura._id)){
+                              resolve("Tiene exonerada la asignatura "+asigP.asignatura.nombre);
+                            }
+                          });
+                          resolve("No tiene exonerada la asignatura "+asigP.asignatura.nombre);
+                    })
+                  })
+                });
+            };
+            resultado.push(await myPromise());
+        }
+        res.json({Reply:resultado});
     })
 };

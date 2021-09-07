@@ -40,6 +40,8 @@ exports.pregunta_listado = function (req, res) {
     });
 };
 
+
+//Cuantos creditos tengo?
 exports.pregunta_FAQcal1 = async function (req, res) {
     Usuario.findById(req.body.id, async function (err, user) {
         if (err) {
@@ -70,6 +72,7 @@ exports.pregunta_FAQcal1 = async function (req, res) {
     })
 };
 
+//cuantos creditos me faltan?
 exports.pregunta_FAQcal2 = async function (req, res) {
     Usuario.findById(req.body.id, async function (err, user) {
         if (err) {
@@ -102,6 +105,7 @@ exports.pregunta_FAQcal2 = async function (req, res) {
 
 };
 
+//estoy en condiciones de realizar la pasantia laboral
 exports.pregunta_FAQcal3 = async function (req, res) {
     Usuario.findById(req.body.id, async function (err, user) {
         if (err) {
@@ -142,7 +146,7 @@ exports.pregunta_FAQcal3 = async function (req, res) {
     })
 };
 
-
+//Estoy en condiciones de hacer el proyecto final?
 exports.pregunta_FAQcal4 = async function (req, res) {
     Usuario.findById(req.body.id, async function (err, user) {
         if (err) {
@@ -186,6 +190,7 @@ exports.pregunta_FAQcal4 = async function (req, res) {
     })
 };
 
+//mañana hay clases?
 exports.pregunta_FAQcal5 = async function (req, res) {
 
     var f = new Date();
@@ -219,6 +224,7 @@ exports.pregunta_FAQcal5 = async function (req, res) {
     })
 };
 
+//hoy hay clases?
 exports.pregunta_FAQcal7 = async function (req, res) {
 
     var f = new Date();
@@ -252,6 +258,7 @@ exports.pregunta_FAQcal7 = async function (req, res) {
     })
 };
 
+//puedo hacer x materia?
 exports.pregunta_FAQcal8 = async function (req, res) {
     Asignatura.findOne({ codigo: req.body.codigo }, async function (erro, asig) {
         if (erro) {
@@ -294,6 +301,7 @@ exports.pregunta_FAQcal8 = async function (req, res) {
     })
 };
 
+//horario de x materia?
 exports.pregunta_FAQcal9 = async function (req, res) {
     Asignatura.findOne({ codigo: req.body.codigo }, async function (erro, asig) {
         if (erro) {
@@ -319,6 +327,7 @@ exports.pregunta_FAQcal9 = async function (req, res) {
     })
 };
 
+//evaluaciones de x materia?
 exports.pregunta_FAQcal10 = async function (req, res) {
     Asignatura.findOne({ codigo: req.body.codigo }, async function (erro, asig) {
         if (erro) {
@@ -353,6 +362,7 @@ exports.pregunta_FAQcal10 = async function (req, res) {
     })
 };
 
+//quien dicta x materia?
 exports.pregunta_FAQcal11 = async function (req, res) {
     Asignatura.findOne({ codigo: req.body.codigo }, async function (erro, asig) {
         if (erro) {
@@ -364,6 +374,7 @@ exports.pregunta_FAQcal11 = async function (req, res) {
     })
 };
 
+//cual es la fecha limite de inscripcion a x asignatura?
 exports.pregunta_FAQcal12 = async function (req, res) {
     Asignatura.findOne({ codigo: req.body.codigo }, async function (erro, asig) {
         if (erro) {
@@ -376,6 +387,7 @@ exports.pregunta_FAQcal12 = async function (req, res) {
     })
 };
 
+//cuantos creditos otorga x materia?
 exports.pregunta_FAQcal13 = async function (req, res) {
     Asignatura.findOne({ codigo: req.body.codigo }, async function (erro, asig) {
         if (erro) {
