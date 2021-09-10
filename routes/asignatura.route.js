@@ -3,9 +3,8 @@ const router = express.Router();
 
 // Require al controlador  ¿?¿?
 const asignatura_controller = require('../controllers/asignatura.controller');
+const materialAsignatura_controller = require('../controllers/materialAsignatura.controller');
 
-
-// Prueba
 router.post('/nueva', asignatura_controller.asignatura_nueva);
 
 router.post('/nuevaPrevia', asignatura_controller.asignatura_nuevaPrevia);
@@ -33,5 +32,17 @@ router.post('/deletePrevia', asignatura_controller.asignatura_deletePrevia);
 router.post('/deleteEvaluacion', asignatura_controller.asignatura_deleteEvaluacion);
 
 router.post('/detalleEvaluacion', asignatura_controller.asignatura_detalleEvaluacion);
+
+//Materiales
+
+router.post('/getSubjectDetail', asignatura_controller.getSubjectDetail);
+
+router.post('/insertSubjectMaterial', materialAsignatura_controller.newSubjectMaterial);
+
+router.post('/getSubjectMaterials', materialAsignatura_controller.getSubjectMaterials);
+
+router.post('/getDetailSubjectMaterial', materialAsignatura_controller.getDetailSubjectMaterial);
+
+router.post('/newHistorySubjectMaterial', materialAsignatura_controller.newHistorySubjectMaterial);
 
 module.exports = router;
