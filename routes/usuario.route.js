@@ -38,4 +38,6 @@ router.get('/prueba', usuario_controller.prueba);
 
 router.post('/pendientes', usuario_controller.asignaturasPendientes);
 
+router.post('/verificar', usuario_controller.verificarUsuarioTelegram);
+
 module.exports = router;

@@ -408,3 +408,13 @@ exports.asignaturasPendientes = async function (req, res) {
         res.json({Reply:resultado});
     })
 };
+
+
+//esta funcion lo que hace es agregar el id de telegram en su obj de la base para que quede verificado
+exports.verificarUsuarioTelegram = async function (req, res) {
+
+    console.log("El id es: "+req.body.id);
+    console.log("el id de telegram: "+req.body.id_telegram);
+
+}
+    
