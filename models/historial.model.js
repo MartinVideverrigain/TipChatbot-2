@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const HistorialChatScheme = new Schema({
+const HistorialChatSchema = new Schema({
     _id: mongoose.Schema.Types.ObjectId,
     usuario: {
         type: mongoose.Schema.Types.ObjectId,
@@ -15,6 +15,6 @@ const HistorialChatScheme = new Schema({
 });
 
 
-HistorialChatScheme.set('toJSON', {getters: true});
+HistorialChatSchema.set('toJSON', {getters: true});
 
-module.exports = mongoose.model('HistorialChat', HistorialChatScheme);
+module.exports = mongoose.model('HistorialChat', HistorialChatSchema);
