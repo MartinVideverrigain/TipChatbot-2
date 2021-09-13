@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var Request = require("request");
-const Pregunta = require('../models/pregunta.model');
+const PreguntaPendiente = require('../models/preguntaPendiente.model');
 const Usuario = require('../models/usuario.model');
 const UsuarioAsignatura = require('../models/usuarioAsignatura.model');
 const Asignatura = require('../models/asignatura.model');
@@ -10,38 +10,48 @@ const Horario = require('../models/horario.model');
 const Evaluacion = require('../models/evaluacion.model');
 const Laboratorio = require('../models/laboratorio.model');
 
-exports.pregunta_nueva = function (req, res) {
-
-    var pregunta = new Pregunta(
+exports.insertUnansweredQuestion = function (request, response) {
+    let preguntaPendiente = new PreguntaPendiente(
         {
             _id: new mongoose.Types.ObjectId(),
-            pregunta: req.body.pregunta,
-            respuesta: req.body.respuesta
+            pregunta: request.body.question,
         }
     );
 
-    pregunta.save(function (err) {
-        if (err) {
-            console.log(err);
-            res.json({ data: "Error" });
-        }
-        res.json({ data: "Pregunta agregada con éxito" });
+    preguntaPendiente.save(function (errorQuery) {
+        if (errorQuery)
+            response.json({ errorResult: "Ocurrió un error y la pregunta no fue almacenada correctamente" });
+
+        response.json({ result: "Pregunta agregada con éxito" });
     })
 };
+
+exports.getUnansweredQuestions = function (request, response) {
+    PreguntaPendiente.find({}, function (errorQuery, listQuestions) {
+        if (errorQuery)
+            response.json({ errorQuery: "Ocurrió un error y no se pudo obtener el listado de preguntas pendientes" });
+        response.json({ result: listQuestions });
+    });
+};
+
+exports.deleteUnansweredQuestion = function (request, response) {
+    PreguntaPendiente.findByIdAndRemove(request.body.idQuestion, function (errorQuery, responseDelte) {
+        if (errorQuery)
+            response.json({ errorResult: "Ocurrió un error y no se pudo eliminar la pregunta pendiente resuelta." })
+        response.json({ result: 'La pregunta pendiente fue correctamente resuelta.' });
+    });
+}
 
 exports.pregunta_listado = function (req, res) {
 
     Pregunta.find({}, function (err, preguntas) {
         if (err) {
-            console.log(err);
             res.json({ data: 'Error no hay preguntas' });
         }
         res.json({ data: preguntas });
     });
 };
 
-
-//Cuantos creditos tengo?
 exports.pregunta_FAQcal1 = async function (req, res) {
     Usuario.findById(req.body.id, async function (err, user) {
         if (err) {
@@ -146,7 +156,6 @@ exports.pregunta_FAQcal3 = async function (req, res) {
     })
 };
 
-//Estoy en condiciones de hacer el proyecto final?
 exports.pregunta_FAQcal4 = async function (req, res) {
     Usuario.findById(req.body.id, async function (err, user) {
         if (err) {
@@ -190,7 +199,6 @@ exports.pregunta_FAQcal4 = async function (req, res) {
     })
 };
 
-//mañana hay clases?
 exports.pregunta_FAQcal5 = async function (req, res) {
 
     var f = new Date();

@@ -14,11 +14,17 @@ exports.getSubjectDetail = function (request, response) {
     Asignatura.findById(request.body.idSubject)
         .populate('horarios')
         .populate('materiales')
-        .populate('previas')
+        .populate({
+            path: 'previas',
+            populate: {
+                path: 'asignatura'
+            }
+        })
         .populate('evaluaciones')
         .exec(function (errorQuery, resultDetail) {
             if (errorQuery)
-                response.json({ errorResult: errorQuery });
+                response.json({ errorResult: errorQuery })
+
             response.json({ result: resultDetail });
         });
 }

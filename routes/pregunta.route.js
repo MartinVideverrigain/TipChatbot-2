@@ -7,9 +7,11 @@ const pregunta_controller = require('../controllers/pregunta.controller');
 
 // Prueba
 
-router.post('/listado', pregunta_controller.pregunta_listado);
+router.post('/getUnansweredQuestions', pregunta_controller.getUnansweredQuestions);
 
-router.post('/nueva', pregunta_controller.pregunta_nueva);
+router.post('/insertUnansweredQuestion', pregunta_controller.insertUnansweredQuestion);
+
+router.post('/deleteUnansweredQuestion', pregunta_controller.deleteUnansweredQuestion);
 
 router.post('/FAQcal1', pregunta_controller.pregunta_FAQcal1);
 
