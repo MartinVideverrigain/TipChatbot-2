@@ -15,4 +15,6 @@ router.post('/getCountSubjectConsult', historial_controller.getCountSubjectConsu
 
 router.post('/getConsultsBySubject', historial_controller.getConsultsBySubject);
 
+router.post('/getHistoryMaterials', historial_controller.getHistoryMaterials);
+
 module.exports = router;

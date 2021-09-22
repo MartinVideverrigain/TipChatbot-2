@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const HistorialChatSchema = new Schema({
     _id: mongoose.Schema.Types.ObjectId,
     usuario: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'Usuario'
     },
     pregunta:{type: String, required: true, max: 250},

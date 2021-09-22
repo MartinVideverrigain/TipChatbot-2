@@ -3,6 +3,61 @@ var mongoose = require('mongoose');
 var Request = require("request");
 const HistorialChat = require("../models/historial.model");
 const Usuario = require("../models/usuario.model");
+const HistorialAsignatura = require("../models/historialAsignatura.model");
+const { __await } = require('tslib');
+const MaterialAsignatura = require('../models/materialAsignatura.model');
+const Asignatura = require('../models/asignatura.model');
+
+exports.getHistoryMaterials = async function (request, response) {
+    Asignatura.findOne({ codigo: request.body.idSubject }, function (errorQuerySubject, responseGetSubject) {
+        if (errorQuerySubject)
+            response.json({ errorResult: "No se pudo obtener información de la asignatura." });
+
+        HistorialAsignatura.aggregate([
+            {
+                $match: {
+                    fecha: { $gte: request.body.startDate, $lt: request.body.endDate },
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        material: "$material",
+                        asignatura: "$asignatura",
+                        usuario: "$usuario"
+                    },
+                    "cantidad": { $sum: 1 }
+                }
+            }
+        ]).exec(async function (errorQuery, listResult) {
+            if (errorQuery)
+                response.json({ errorQuery: errorQuery });
+
+            let arrayMaterialsHistory = new Array();
+            for (const item of listResult) {
+                if (item._id.asignatura.equals(responseGetSubject._id)) {
+                    console.log(request.body.idSubject)
+                    let promiseGetMaterialAsignatura = () => {
+                        return new Promise((resolve, reject) => {
+                            MaterialAsignatura.findById(item._id.material).exec(function (errorGetUser, objectMaterialAsignatura) {
+                                if (errorGetUser)
+                                    response.json({ Reply: 'Error el usuario no existe' });
+
+                                resolve(objectMaterialAsignatura);
+                            })
+                        });
+                    };
+                    let resultMaterialAsignatura = await promiseGetMaterialAsignatura();
+                    arrayMaterialsHistory.push({
+                        title: resultMaterialAsignatura.titulo,
+                        cantidad: item.cantidad
+                    });
+                }
+            }
+            response.json({ listResult: arrayMaterialsHistory });
+        });
+    });
+}
 
 exports.historial_nuevo = function (request, response) {
     Usuario.findById(request.body.idUser, function (errorFinded, userSelected) {
@@ -68,32 +123,58 @@ exports.getCountQuestionByDate = function (request, response) {
     });
 };
 
-exports.getCountQuestionsByUser = function (request, response) {
-    Usuario.find({ nombre: { $regex: request.body.textToSearch, $options: 'i' } }, function (errorQuery, listResult) {
+exports.getCountQuestionsByUser = async function (request, response) {
+    HistorialChat.aggregate([
+        {
+            $match: { fecha: { $gte: request.body.startDate, $lt: request.body.endDate } }
+        },
+        {
+            $group: {
+                _id: "$usuario",
+                "cantidad": { $sum: 1 }
+            }
+        }
+    ]).exec(async function (errorQuery, listResult) {
         if (errorQuery)
-            response.json({ data: "Ocurrió un eror y no se pudieron listar los usuarios y la cantidad de preguntas." });
+            response.json({ errorQuery: errorQuery });
 
-        let arrayList = new Array();
-        listResult.forEach(item => {
-            let newItem = { "ci": item.cedula, "nombre": item.nombre + " " + item.apellido, "cantQuerys": item.historialChat.length };
-            arrayList.push(newItem);
-        })
-        response.json({ listResult: arrayList });
-    });
+        let arrayUsers = new Array();
+        for (const item of listResult) {
+            console.log(item)
+            var myPromise = () => {
+                return new Promise((resolve, reject) => {
+                    Usuario.findById(item._id).exec(function (errorGetUser, objectUser) {
+                        if (errorGetUser)
+                            response.json({ Reply: 'Error el usuario no existe' });
+
+                        resolve(objectUser);
+                    })
+                });
+            };
+
+            let user = await myPromise();
+            arrayUsers.push({ cedula: user.cedula, nombre: user.nombre + " " + user.apellido, cantQuerys: item.cantidad });
+        }
+        response.json({ listResult: arrayUsers });
+    })
 };
 
 exports.getCountSubjectConsult = function (request, response) {
     HistorialChat.aggregate([
         {
+            $match: {
+                fecha: { $gte: request.body.startDate, $lt: request.body.endDate }
+            }
+        }, {
             $group: {
                 _id: "$codAsignatura",
                 "cantidad": { $sum: 1 }
             }
         }
-    ]).then(data => {
-        response.json({ listResult: data });
-    }).catch(errorQuery => {
-        response.json({ data: errorQuery });
+    ]).exec(function (errorQuery, listResult) {
+        if (errorQuery)
+            response.json({ errorQuery: errorQuery });
+        response.json({ listResult: listResult });
     });
 }
 
@@ -113,6 +194,6 @@ exports.getConsultsBySubject = function (request, response) {
     ]).then(data => {
         response.json({ listResult: data });
     }).catch(errorQuery => {
-        response.json({data: errorQuery});
+        response.json({ data: errorQuery });
     });
 }

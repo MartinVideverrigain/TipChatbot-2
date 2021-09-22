@@ -20,7 +20,7 @@ var UsuarioSchema = new Schema({
 	historialChat:[
 		{
 			type: Schema.Types.ObjectId,
-			ref: "HisotoriaChat"
+			ref: "HistoriaChat"
 		}
 	]
 });

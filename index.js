@@ -14,8 +14,8 @@ const app = express();
 
 // Conexion a mongo
 var mongoose = require('mongoose');
-//var dev_db_url = 'mongodb://localhost:27017/tipchatbot?readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false';
-var dev_db_url = 'mongodb+srv://tipbot:tipchatpablot@cluster0.b23cn.mongodb.net/tipchatbot?retryWrites=true&w=majority';
+var dev_db_url = 'mongodb://localhost:27017/tipchatbot?readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false';
+//var dev_db_url = 'mongodb+srv://tipbot:tipchatpablot@cluster0.b23cn.mongodb.net/tipchatbot?retryWrites=true&w=majority';
 var mongoDB = dev_db_url;
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
