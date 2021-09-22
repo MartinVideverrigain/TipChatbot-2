@@ -355,7 +355,7 @@ exports.usuarioAsignatura_delete = function (req, res) {
 };
 
 
-//esta función te devuelve todos los datos que se tienen del objeto usuario buscando a partir de la cedula
+//esta función te devuelve el objeto usuario buscando a partir de la cedula
 exports.usuario_details_cedula = function (req, res) {
   console.log(req.body.cedula);
    Usuario.findOne({ cedula: req.body.cedula}, function (err, user) {
@@ -363,9 +363,23 @@ exports.usuario_details_cedula = function (req, res) {
         console.log(err);
         res.json({data:'Error el usuario no existe'});
       }
+      //console.log(user);
       res.json({usuario: user});
     });
 };
+
+//esta función te devuelve el objeto usuario buscando a partir del id de telegram
+exports.usuario_details_telegram = function (req, res){
+    console.log("usuario_details_telegram: "+req.body.id_telegram);
+   Usuario.findOne({ id_telegram: req.body.id_telegram}, function (err, user) {
+      if (err) {
+        console.log(err);
+        res.json({data:'Error el usuario no se encontró'});
+      }
+      console.log("usuario_details_telegram: "+user);
+      res.json({usuario: user});
+    });
+}
 
 //esta funcion te devuelve las materias previas que tenes que aporbar antes de poder cursar otra
 exports.asignaturasPendientes = async function (req, res) {
@@ -408,3 +422,40 @@ exports.asignaturasPendientes = async function (req, res) {
         res.json({Reply:resultado});
     })
 };
+
+
+exports.verificarUsuarioTelegram = async function (req, res) {
+
+    if(req.body.frontend){//solamente se modifica el campo activo
+        Usuario.findByIdAndUpdate(
+            req.body.id,
+            { $set: {activo_telegram: req.body.activo_telegram}},
+            function(err) {
+                if (err) {
+                    console.log(err);
+                    res.json({ ok: false, err: 'Error al guardar los datos de telegram' });
+                }
+                else{
+                    res.json({ ok: true});
+                }
+            }
+        )
+    }
+    else{       //esto sería si viene desde el interprete, entonces se modifican los dos valores
+        Usuario.findByIdAndUpdate(
+            req.body.id,
+            { $set: {id_telegram : req.body.id_telegram, activo_telegram: req.body.activo_telegram}},
+            function(err) {
+                if (err) {
+                    console.log(err);
+                    res.json({ ok: false, err: 'Error al guardar los datos de telegram' });
+                }
+                else{
+                    res.json({ ok: true});
+                }
+            }
+        )
+    }
+
+}
+    

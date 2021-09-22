@@ -3,6 +3,8 @@ var Schema = mongoose.Schema;
 
 var UsuarioSchema = new Schema({
 	_id: mongoose.Schema.Types.ObjectId,
+	id_telegram: {type:String},
+	activo_telegram: {type: Boolean},
 	cedula:{type:String,validate:[
 			function(cedula){
 					return cedula.length == 8;

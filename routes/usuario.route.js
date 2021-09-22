@@ -18,6 +18,8 @@ router.post('/detalle', usuario_controller.usuario_details);
 
 router.post('/detalleC', usuario_controller.usuario_details_cedula);
 
+router.post('/detalleUT', usuario_controller.usuario_details_telegram);
+
 router.post('/update', usuario_controller.usuario_update);
 
 router.post('/delete', usuario_controller.usuario_delete);
@@ -25,6 +27,8 @@ router.post('/delete', usuario_controller.usuario_delete);
 router.post('/updatePassword', usuario_controller.usuario_updatePassword);
 
 router.post('/verify', usuario_controller.usuario_verify);
+
+router.post('/verifyTelegram', usuario_controller.verificarUsuarioTelegram);
 
 router.post('/updateUA', usuario_controller.updateUA);
 
