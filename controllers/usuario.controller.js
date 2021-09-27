@@ -101,36 +101,34 @@ exports.usuarioAsignatura_nuevo = function (req, res) {
     })
 };
 
-exports.login = function (req, res) {
+exports.login = function (request, response) {
 
-    Usuario.findOne({ cedula: req.body.cedula }, (erro, usuarioDB) => {
-        if (erro) {
-            return res.json({
+    Usuario.findOne({ cedula: request.body.cedula }, function (errorQueryGetUser, objectUser) {
+        if (errorQueryGetUser)
+            response.json({
                 ok: false,
-                err: erro
-            })
-        }
+                err: errorQueryGetUser
+            });
+
         // Verifica que exista un usuario con el mail escrita por el usuario.
-        if (!usuarioDB) {
-            return res.json({
+        if (!objectUser)
+            response.json({
                 ok: false,
                 err: {
                     message: "Usuario o contraseña incorrectos"
                 }
-            })
-        }
+            });
         // Valida que la contraseña escrita por el usuario, sea la almacenada en la db
-        bcrypt.compare(req.body.contrasenia, usuarioDB.contrasenia).then(function (result) {
-            if (result) {
+        bcrypt.compare(request.body.contrasenia, objectUser.contrasenia).then(function (resultCompare) {
+            if (resultCompare) {
                 let token = jwt.sign({
-                    usuario: usuarioDB,
+                    usuario: objectUser,
                 }, process.env.SEED_AUTENTICACION, {
                     expiresIn: process.env.CADUCIDAD_TOKEN
                 })
-                // res.json({data:'Error no hay usuarios'});
-                return res.json({
+                response.json({
                     ok: true,
-                    usuario: usuarioDB,
+                    usuario: objectUser,
                     token,
                 });
             } else {
@@ -142,7 +140,7 @@ exports.login = function (req, res) {
                 });
             }
         });
-    })
+    });
 };
 
 exports.usuario_listado = function (req, res) {
@@ -208,19 +206,17 @@ exports.usuario_updatePassword = function (req, res) {
     })
 };
 
-exports.usuario_verify = function (req, res) {
+exports.usuario_verify = function (request, response) {
 
-    Usuario.findById(req.body.id, function (err, user) {
-        if (err) {
-            console.log(err);
-            res.json({ data: 'Error el usuario no existe' });
-        }
-        if (user.admin) {
-            res.json({ data: true });
-        } else {
-            res.json({ data: false });
-        }
-    })
+    Usuario.findById(request.body.id, function (errorQuery, objectUser) {
+        if (errorQuery)
+            response.json({ data: 'Error el usuario no existe' });
+
+        if (objectUser.admin)
+            response.json({ data: true });
+        else
+            response.json({ data: false });
+    });
 };
 
 exports.usuario_delete = function (req, res) {
@@ -357,27 +353,27 @@ exports.usuarioAsignatura_delete = function (req, res) {
 
 //esta función te devuelve el objeto usuario buscando a partir de la cedula
 exports.usuario_details_cedula = function (req, res) {
-  console.log(req.body.cedula);
-   Usuario.findOne({ cedula: req.body.cedula}, function (err, user) {
-      if (err) {
-        console.log(err);
-        res.json({data:'Error el usuario no existe'});
-      }
-      //console.log(user);
-      res.json({usuario: user});
+    console.log(req.body.cedula);
+    Usuario.findOne({ cedula: req.body.cedula }, function (err, user) {
+        if (err) {
+            console.log(err);
+            res.json({ data: 'Error el usuario no existe' });
+        }
+        //console.log(user);
+        res.json({ usuario: user });
     });
 };
 
 //esta función te devuelve el objeto usuario buscando a partir del id de telegram
-exports.usuario_details_telegram = function (req, res){
-    console.log("usuario_details_telegram: "+req.body.id_telegram);
-   Usuario.findOne({ id_telegram: req.body.id_telegram}, function (err, user) {
-      if (err) {
-        console.log(err);
-        res.json({data:'Error el usuario no se encontró'});
-      }
-      console.log("usuario_details_telegram: "+user);
-      res.json({usuario: user});
+exports.usuario_details_telegram = function (req, res) {
+    console.log("usuario_details_telegram: " + req.body.id_telegram);
+    Usuario.findOne({ id_telegram: req.body.id_telegram }, function (err, user) {
+        if (err) {
+            console.log(err);
+            res.json({ data: 'Error el usuario no se encontró' });
+        }
+        console.log("usuario_details_telegram: " + user);
+        res.json({ usuario: user });
     });
 }
 
@@ -385,77 +381,76 @@ exports.usuario_details_telegram = function (req, res){
 exports.asignaturasPendientes = async function (req, res) {
 
     //en asig se guarda el obj asignatura que es igual al codigo que llega
-    Asignatura.findOne({ codigo: req.body.codigo}, async function (erro, asig){
+    Asignatura.findOne({ codigo: req.body.codigo }, async function (erro, asig) {
         if (erro) {
-          console.log(erro);
-              res.json({Reply:'Error la asignatura no existe'});
+            console.log(erro);
+            res.json({ Reply: 'Error la asignatura no existe' });
         }
         var resultado = [];
         //en previa recorro los id de las asignaturas previas que tiene asig
-         for (const previa of asig.previas) {
-           var myPromise = () => {
-             return new Promise((resolve, reject) => {
-                 //asigP es el objeto Previa 
-               Previa.findById(previa._id).populate('asignatura').exec( function (err, asigP) {
-                    if (err) {
-                      console.log(err);
-                          res.json({Reply:'Error la asignatura no existe'});
-                    }
-                    //
-                     UsuarioAsignatura.find({ $and: [ {usuario: req.body.id}, {estado: "Exonerada"} ]}).populate('asignatura').exec( function (err, uA) {
-                          if (err) {
+        for (const previa of asig.previas) {
+            var myPromise = () => {
+                return new Promise((resolve, reject) => {
+                    //asigP es el objeto Previa 
+                    Previa.findById(previa._id).populate('asignatura').exec(function (err, asigP) {
+                        if (err) {
                             console.log(err);
-                                res.json({Reply:'Error el usuario no existe'});
-                          }
-                          uA.find(function(item){
-                            if(String(item.asignatura._id) == String(asigP.asignatura._id)){
-                              resolve("Tiene exonerada la asignatura "+asigP.asignatura.nombre);
+                            res.json({ Reply: 'Error la asignatura no existe' });
+                        }
+                        //
+                        UsuarioAsignatura.find({ $and: [{ usuario: req.body.id }, { estado: "Exonerada" }] }).populate('asignatura').exec(function (err, uA) {
+                            if (err) {
+                                console.log(err);
+                                res.json({ Reply: 'Error el usuario no existe' });
                             }
-                          });
-                          resolve("No tiene exonerada la asignatura "+asigP.asignatura.nombre);
+                            uA.find(function (item) {
+                                if (String(item.asignatura._id) == String(asigP.asignatura._id)) {
+                                    resolve("Tiene exonerada la asignatura " + asigP.asignatura.nombre);
+                                }
+                            });
+                            resolve("No tiene exonerada la asignatura " + asigP.asignatura.nombre);
+                        })
                     })
-                  })
                 });
             };
             resultado.push(await myPromise());
         }
-        res.json({Reply:resultado});
+        res.json({ Reply: resultado });
     })
 };
 
 
 exports.verificarUsuarioTelegram = async function (req, res) {
 
-    if(req.body.frontend){//solamente se modifica el campo activo
+    if (req.body.frontend) {//solamente se modifica el campo activo
         Usuario.findByIdAndUpdate(
             req.body.id,
-            { $set: {activo_telegram: req.body.activo_telegram}},
-            function(err) {
+            { $set: { activo_telegram: req.body.activo_telegram } },
+            function (err) {
                 if (err) {
                     console.log(err);
                     res.json({ ok: false, err: 'Error al guardar los datos de telegram' });
                 }
-                else{
-                    res.json({ ok: true});
+                else {
+                    res.json({ ok: true });
                 }
             }
         )
     }
-    else{       //esto sería si viene desde el interprete, entonces se modifican los dos valores
+    else {       //esto sería si viene desde el interprete, entonces se modifican los dos valores
         Usuario.findByIdAndUpdate(
             req.body.id,
-            { $set: {id_telegram : req.body.id_telegram, activo_telegram: req.body.activo_telegram}},
-            function(err) {
+            { $set: { id_telegram: req.body.id_telegram, activo_telegram: req.body.activo_telegram } },
+            function (err) {
                 if (err) {
                     console.log(err);
                     res.json({ ok: false, err: 'Error al guardar los datos de telegram' });
                 }
-                else{
-                    res.json({ ok: true});
+                else {
+                    res.json({ ok: true });
                 }
             }
         )
     }
 
 }
-    

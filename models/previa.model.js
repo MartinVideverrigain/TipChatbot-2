@@ -12,5 +12,4 @@ var PreviaSchema = new Schema({
 
 PreviaSchema.set('toJSON', {getters: true});
 
-// Export the model
 module.exports = mongoose.model('Previa', PreviaSchema);

@@ -267,45 +267,46 @@ exports.pregunta_FAQcal7 = async function (req, res) {
 };
 
 //puedo hacer x materia?
-exports.pregunta_FAQcal8 = async function (req, res) {
-    Asignatura.findOne({ codigo: req.body.codigo }, async function (erro, asig) {
-        if (erro) {
-            console.log(erro);
-            res.json({ Reply: 'Error la asignatura no existe' });
-        }
+exports.pregunta_FAQcal8 = async function (request, response) {
+    Asignatura.findOne({ codigo: request.body.codigo }, async function (errorQuery, objectAsignatura) {
+        if (errorQuery)
+            response.json({ Reply: 'La asignatura no fue encontrada.' });
+
         var cont = 0;
         var cantPrevias = 0;
-        for (const previa of asig.previas) {
-            var myPromise = () => {
-                return new Promise((resolve, reject) => {
-                    Previa.findById(previa._id).populate('asignatura').exec(function (err, asigP) {
-                        if (err) {
-                            console.log(err);
-                            res.json({ Reply: 'Error la asignatura no existe' });
-                        }
-                        UsuarioAsignatura.find({ $and: [{ usuario: req.body.id }, { estado: "Exonerada" }] }).populate('asignatura').exec(function (err, uA) {
+        if (objectAsignatura && objectAsignatura.previas) {
+            for (const previa of objectAsignatura.previas) {
+                var myPromise = () => {
+                    return new Promise((resolve, reject) => {
+                        Previa.findById(previa._id).populate('asignatura').exec(function (err, asigP) {
                             if (err) {
                                 console.log(err);
-                                res.json({ Reply: 'Error el usuario no existe' });
+                                response.json({ Reply: 'Error la asignatura no existe' });
                             }
-                            uA.find(function (item) {
-                                if (String(item.asignatura._id) == String(asigP.asignatura._id)) {
-                                    resolve(1);
+                            UsuarioAsignatura.find({ $and: [{ usuario: request.body.id }, { estado: "Exonerada" }] }).populate('asignatura').exec(function (err, uA) {
+                                if (err) {
+                                    console.log(err);
+                                    response.json({ Reply: 'Error el usuario no existe' });
                                 }
-                            });
-                            resolve(0);
+                                uA.find(function (item) {
+                                    if (String(item.asignatura._id) == String(asigP.asignatura._id)) {
+                                        resolve(1);
+                                    }
+                                });
+                                resolve(0);
+                            })
                         })
-                    })
-                });
-            };
-            cantPrevias += 1;
-            cont += await myPromise();
-        }
-        if (cont == cantPrevias) {
-            res.json({ Reply: 'Si, estás en condiciones de realizar esta materia' });
-        } else {
-            res.json({ Reply: 'No, no estás en condiciones de realizar esta materia' });
-        }
+                    });
+                };
+                cantPrevias += 1;
+                cont += await myPromise();
+            }
+            if (cont == cantPrevias) {
+                response.json({ Reply: 'Si, estás en condiciones de realizar esta materia' });
+            } else {
+                response.json({ Reply: 'No, no estás en condiciones de realizar esta materia' });
+            }
+        } else response.json({ result: "Ocurrió un error y la información de la asignatura no fue obtenida." });
     })
 };
 

@@ -7,6 +7,8 @@ const materialAsignatura_controller = require('../controllers/materialAsignatura
 
 router.post('/nueva', asignatura_controller.asignatura_nueva);
 
+router.post('/getAsignaturasNoVinculadas', asignatura_controller.getAsignaturasNoVinculadas);
+
 router.post('/nuevaPrevia', asignatura_controller.asignatura_nuevaPrevia);
 
 router.post('/nuevoHorario', asignatura_controller.asignatura_nuevoHorario);

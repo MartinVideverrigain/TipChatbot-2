@@ -11,6 +11,7 @@ var AsignaturaSchema = new Schema({
 	nombreDoc: { type: String, required: true, max: 200 },
 	correoDoc: { type: String, required: true, max: 200, match: /.+\@.+\..+/ },
 	fechaInscripcion: { type: Date, required: true },
+	semestre: { type: Number, requiered: true },
 	materiales: [{
 		type: Schema.Types.ObjectId,
 		ref: "MaterialAsignatura"

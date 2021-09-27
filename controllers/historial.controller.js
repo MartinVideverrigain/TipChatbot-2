@@ -36,7 +36,6 @@ exports.getHistoryMaterials = async function (request, response) {
             let arrayMaterialsHistory = new Array();
             for (const item of listResult) {
                 if (item._id.asignatura.equals(responseGetSubject._id)) {
-                    console.log(request.body.idSubject)
                     let promiseGetMaterialAsignatura = () => {
                         return new Promise((resolve, reject) => {
                             MaterialAsignatura.findById(item._id.material).exec(function (errorGetUser, objectMaterialAsignatura) {
@@ -182,18 +181,28 @@ exports.getConsultsBySubject = function (request, response) {
     HistorialChat.aggregate([
         {
             $match: {
-                codAsignatura: request.body.codeSubject
+                codAsignatura: request.body.codeSubject,
             }
         },
         {
             $group: {
-                _id: "$pregunta",
+                _id: {
+                    pregunta: "$pregunta",
+                    fecha: "$fecha"
+                },
                 "cantidad": { $sum: 1 }
             }
         }
-    ]).then(data => {
-        response.json({ listResult: data });
-    }).catch(errorQuery => {
-        response.json({ data: errorQuery });
+    ]).exec(function (errorQuery, listConsults) {
+        if (errorQuery)
+            response.json({ errorResult: "Ocurrió un error y no se pudieron obtener las preguntas sobre la asginatura." });
+
+        let arrayResult = new Array();
+        for (const item of listConsults) {
+            if (request.body.startDate < item._id.fecha && request.body.endDate > item._id.fecha)
+                arrayResult.push(item);
+        }
+        
+        response.json({ listResult: arrayResult });
     });
 }

@@ -29,6 +29,31 @@ exports.getSubjectDetail = function (request, response) {
         });
 }
 
+exports.getAsignaturasNoVinculadas = function (request, response) {
+    Asignatura.findById(request.body.idSubject)
+        .populate(
+            {
+                path: 'previas'
+            }
+        ).exec(function (errorQuery, listResult) {
+            if (errorQuery)
+                response.json({ errorResult: "Ocurrió un error y no se pudieron obtener las previas de la asignatura." });
+
+            let arrayQuery = new Array();
+            for (const item of listResult.previas) {
+                arrayQuery.push(item.asignatura);
+            }
+
+            Asignatura.find({ _id: { $nin: arrayQuery } }, {})
+                .exec(function (errorSecondQuery, listSecondResult) {
+                    if (errorSecondQuery)
+                        response.json({ errorResult: "Ocurrió un error" });
+
+                    response.json({ listResult: listSecondResult });
+                })
+        });
+}
+
 
 exports.asignatura_nueva = function (req, res) {
 
@@ -39,6 +64,7 @@ exports.asignatura_nueva = function (req, res) {
                     _id: new mongoose.Types.ObjectId(),
                     codigo: req.body.codigo,
                     nombre: req.body.nombre,
+                    semestre: req.body.semestre,
                     creditos: req.body.creditos,
                     programa: req.body.programa,
                     apruebaPor: req.body.apruebaPor,
@@ -47,7 +73,7 @@ exports.asignatura_nueva = function (req, res) {
                     fechaInscripcion: req.body.fechaInscripcion
                 }
             );
-
+            console.log(asignatura)
             asignatura.save(function (err) {
                 if (err) {
                     console.log(err);
@@ -62,65 +88,62 @@ exports.asignatura_nueva = function (req, res) {
     })
 };
 
-exports.asignatura_nuevaPrevia = function (req, res) {
+exports.asignatura_nuevaPrevia = function (request, response) {
+    Asignatura.findById(request.body.idSubjectPrevious, function (errorQuery, objectSubjectPrevious) {
+        if (errorQuery)
+            response.json({ errorResult: 'La previa seleccionada no fue encontrada en la base de datos.' });
 
-    Asignatura.findById(req.body.idAsigPrevia, function (err, asig) {
-        if (err) {
-            console.log(err);
-            res.json({ data: 'Error la asignatura previa no existe' });
-        }
+        let newPrevia = new Previa({
+            _id: new mongoose.Types.ObjectId(),
+            tipo: request.body.typeAprov,
+            asignatura: objectSubjectPrevious
+        });
 
-        var previa = new Previa(
-            {
-                _id: new mongoose.Types.ObjectId(),
-                tipo: req.body.tipo,
-                asignatura: asig
-            }
-        );
-
-        previa.save(function (err) {
-            if (err) {
-                res.json({ data: 'Error' });
-            }
+        newPrevia.save(function (errorSave) {
+            if (errorSave)
+                response.json({ errorResult: 'Ocurrió un error y la previa no pudo guardarse en la base de datos.' });
 
             Asignatura.findOneAndUpdate(
-                { _id: req.body.idAsig },
-                { $push: { previas: previa } },
-                function (error, success) {
-                    if (error) {
-                        console.log(error);
-                        res.json({ data: 'Error asig' });
-                    }
-                    res.json({ data: 'Previa agregado con éxito' });
+                { _id: request.body.idSubject },
+                { $push: { previas: newPrevia } },
+                function (errorSavePrevia, successSavePrevia) {
+                    if (errorSavePrevia)
+                        response.json({ errorResult: 'Ocurrió un error y la previa no fue vinculada a la materia seleccionada.' });
+
+                    let newSubjectPrevia = {
+                        idPrevious: newPrevia._id,
+                        materia: objectSubjectPrevious.nombre,
+                        condicion: request.body.typeAprov,
+                        creditos: objectSubjectPrevious.creditos,
+                        docente: objectSubjectPrevious.nombreDoc,
+                        aprobacion: objectSubjectPrevious.apruebaPor
+                    };
+                    response.json({ result: 'La previa fue agregada correctamente', newPrevia: newSubjectPrevia });
                 });
         })
     })
 };
 
-exports.asignatura_deletePrevia = function (req, res) {
+exports.asignatura_deletePrevia = function (request, response) {
 
-    Previa.findById(req.body.id, function (err, prev) {
-        if (err) {
-            console.log(err);
-            res.json({ data: 'Error la previa no existe' });
-        }
-        Asignatura.findById(req.body.idAsig, function (err, asig) {
-            if (err) {
-                console.log(err);
-                res.json({ data: 'Error la asignatura no existe' });
-            }
-            asig.previas.pull({ _id: prev._id });
-            Asignatura.findByIdAndUpdate(asig._id, { previas: asig.previas }, function (err, asignatura) {
-                if (err) {
-                    console.log(err);
-                    res.json({ data: 'Error al eliminar la previa' });
-                }
-                Previa.findByIdAndRemove(req.body.id, function (err, pdel) {
-                    if (err) {
-                        console.log(err);
-                        res.json({ data: 'Error la previa no existe' });
-                    }
-                    res.json({ data: 'Previa eliminada con exito' });
+    Previa.findById(request.body.idPrevious, function (errorQueryGetPrevious, objectPrevious) {
+        if (errorQueryGetPrevious)
+            response.json({ errorResult: 'La asginatura previa seleccionada no fue encontrada' });
+
+        Asignatura.findById(request.body.idSubject, function (errorQueryGetSubject, objectSubject) {
+            if (errorQueryGetSubject)
+                response.json({ errorResult: 'La asignatura asignada como previa no fue encontrada.' });
+
+            objectSubject.previas.pull({ _id: objectPrevious._id });
+            Asignatura.findByIdAndUpdate(objectSubject._id, { previas: objectSubject.previas }, function (errorUpdateSubject, newObjectSubject) {
+                if (errorUpdateSubject)
+                    res.json({ errorResult: 'Ocurrió un error y la asignatura no fue actualizada correctamente.' });
+
+                Previa.findByIdAndRemove(request.body.idPrevious, function (errorDeletePrevious, objectDelete) {
+                    if (errorDeletePrevious)
+                        response.json({ errorResult: "Ocurrió un error y la previa seleccionada no fue borrada completamente. " });
+
+                    response.json({ result: "La asignatura previa fue desvinculada correctamente." });
                 })
             })
         })
