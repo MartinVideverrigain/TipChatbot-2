@@ -29,7 +29,7 @@ process.env.URLDB = mongoDB;
 process.env.CADUCIDAD_TOKEN = '48h';
 process.env.SEED_AUTENTICACION = process.env.SEED_AUTENTICACION ||  'este-es-el-seed-desarrollo';
 
-app.use(cors({origin:true,credentials: true}));
+app.use(cors({origin:'*',credentials: true}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
