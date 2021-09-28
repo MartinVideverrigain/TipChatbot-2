@@ -173,6 +173,14 @@ exports.getCountSubjectConsult = function (request, response) {
     ]).exec(function (errorQuery, listResult) {
         if (errorQuery)
             response.json({ errorQuery: errorQuery });
+
+        listResult.sort(function (itemA, itemB) {
+            if (itemA.cantidad < itemB.cantidad)
+                return 1;
+            if (itemA.cantidad > itemB.cantidad)
+                return -1;
+            return 0;
+        });
         response.json({ listResult: listResult });
     });
 }
@@ -202,7 +210,7 @@ exports.getConsultsBySubject = function (request, response) {
             if (request.body.startDate < item._id.fecha && request.body.endDate > item._id.fecha)
                 arrayResult.push(item);
         }
-        
+
         response.json({ listResult: arrayResult });
     });
 }

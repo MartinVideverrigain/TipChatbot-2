@@ -73,7 +73,6 @@ exports.asignatura_nueva = function (req, res) {
                     fechaInscripcion: req.body.fechaInscripcion
                 }
             );
-            console.log(asignatura)
             asignatura.save(function (err) {
                 if (err) {
                     console.log(err);
@@ -154,7 +153,6 @@ exports.asignatura_nuevoHorario = function (req, res) {
 
     Asignatura.findById(req.body.idAsig, function (err, asig) {
         if (err) {
-            console.log(err);
             res.json({ data: 'Error la asignatura no existe' });
         }
 
