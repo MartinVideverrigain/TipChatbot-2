@@ -132,7 +132,7 @@ exports.login = function (request, response) {
                     token,
                 });
             } else {
-                return res.json({
+                return response.json({
                     ok: false,
                     err: {
                         message: "Usuario o contraseña incorrectos"
