@@ -7,6 +7,25 @@ const UsuarioAsignatura = require('../models/usuarioAsignatura.model');
 const Asignatura = require('../models/asignatura.model');
 const Previa = require('../models/previa.model');
 
+exports.addAdminUser = function (request, response) {
+    if (request.body.idUser != request.body.currentUser) {
+        Usuario.findById(request.body.currentUser, function (errorQueryGetAdmin, objectUserAdmin) {
+            if (errorQueryGetAdmin)
+                response.json({ errorResult: "No fue encontrado el usuario en sesión dentor de la base de datos." });
+            if (objectUserAdmin.cedula == "11111111") {
+
+                Usuario.findByIdAndUpdate(request.body.idUser, { admin: request.body.newAdminValue }, function (errorQueryChangeAdmin, objectNewAdmin) {
+                    if (errorQueryChangeAdmin)
+                        response.json({ errorResult: 'Ocurrió un error, los permisos del usuario seleccionado no fueron modificados.' });
+
+
+                    response.json({ result: 'Los permisos del usuario seleccionado fueron modificados correctamente.', objectResult: objectNewAdmin });
+                })
+            } else response.json({ errorResult: "Solo el usuario principal puede dar privilegios de administrador." });
+        });
+    } else response.json({ errorResult: "No puede modificar sus propios privilegios." });
+}
+
 exports.usuario_nuevo = function (req, res) {
 
     Usuario.findOne({ cedula: req.body.cedula }, (erro, usuarioDB) => {

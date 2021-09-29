@@ -12,6 +12,8 @@ router.post('/asignaturaNuevo', usuario_controller.usuarioAsignatura_nuevo);
 
 router.post('/login', usuario_controller.login);
 
+router.post('/addAdminUser', usuario_controller.addAdminUser);
+
 router.post('/listado', usuario_controller.usuario_listado);
 
 router.post('/detalle', usuario_controller.usuario_details);
