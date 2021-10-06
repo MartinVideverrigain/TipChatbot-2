@@ -7,6 +7,10 @@ const materialAsignatura_controller = require('../controllers/materialAsignatura
 
 router.post('/nueva', asignatura_controller.asignatura_nueva);
 
+router.post('/getSubjectByName', asignatura_controller.getSubjectByName);
+
+router.post('/getSubjectByCode', asignatura_controller.getSubjectByCode);
+
 router.post('/getAsignaturasNoVinculadas', asignatura_controller.getAsignaturasNoVinculadas);
 
 router.post('/nuevaPrevia', asignatura_controller.asignatura_nuevaPrevia);

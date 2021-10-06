@@ -10,6 +10,24 @@ const Parcial = require('../models/parcial.model');
 const Examen = require('../models/examen.model');
 const Laboratorio = require('../models/laboratorio.model');
 
+exports.getSubjectByName = function (request, response) {
+    Asignatura.findOne({ nombre: request.body.nameSubject }, (errorQuery, objectSubject) => {
+        if (errorQuery)
+            response.json({ errorResult: "Ocurrió un error y no se pudo obtener la asignatura por codigo." });
+
+        response.json({ result: objectSubject });
+    });
+}
+
+exports.getSubjectByCode = function (request, response) {
+    Asignatura.findOne({ codigo: request.body.codeSubject }, (errorQuery, objectSubject) => {
+        if (errorQuery)
+            response.json({ errorResult: "La asignatura con el código ingresado no fue obtenida." });
+
+        response.json({ result: objectSubject });
+    });
+}
+
 exports.getSubjectDetail = function (request, response) {
     Asignatura.findById(request.body.idSubject)
         .populate('horarios')
