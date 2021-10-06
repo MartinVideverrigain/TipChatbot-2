@@ -424,10 +424,10 @@ exports.asignaturasPendientes = async function (req, res) {
                             }
                             uA.find(function (item) {
                                 if (String(item.asignatura._id) == String(asigP.asignatura._id)) {
-                                    resolve("Tiene exonerada la asignatura " + asigP.asignatura.nombre);
+                                    resolve("Tiene aprobada la asignatura " + asigP.asignatura.nombre);
                                 }
                             });
-                            resolve("No tiene exonerada la asignatura " + asigP.asignatura.nombre);
+                            resolve("No tiene aprobada la asignatura " + asigP.asignatura.nombre);
                         })
                     })
                 });
