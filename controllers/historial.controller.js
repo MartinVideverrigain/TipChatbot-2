@@ -140,20 +140,31 @@ exports.getCountQuestionsByUser = async function (request, response) {
         let arrayUsers = new Array();
         for (const item of listResult) {
             console.log(item)
-            var myPromise = () => {
-                return new Promise((resolve, reject) => {
-                    Usuario.findById(item._id).exec(function (errorGetUser, objectUser) {
-                        if (errorGetUser)
-                            response.json({ Reply: 'Error el usuario no existe' });
+            if (item._id) {
+                var myPromise = () => {
+                    return new Promise((resolve, reject) => {
+                        Usuario.findById(item._id).exec(function (errorGetUser, objectUser) {
+                            if (errorGetUser)
+                                response.json({ Reply: 'Error el usuario no existe' });
 
-                        resolve(objectUser);
-                    })
-                });
-            };
+                            resolve(objectUser);
+                        })
+                    });
+                };
 
-            let user = await myPromise();
-            arrayUsers.push({ cedula: user.cedula, nombre: user.nombre + " " + user.apellido, cantQuerys: item.cantidad });
+                let user = await myPromise();
+                arrayUsers.push({ cedula: user.cedula, nombre: user.nombre + " " + user.apellido, cantQuerys: item.cantidad });
+            } else arrayUsers.push({ cedula: "Usuario eliminado", nombre: "No corresponde", cantQuerys: item.cantidad });
         }
+
+        arrayUsers.sort(function (itemA, itemB) {
+            if (itemA.cantQuerys < itemB.cantQuerys)
+                return 1;
+            if (itemA.cantQuerys > itemB.cantQuerys)
+                return -1;
+            return 0;
+        });
+
         response.json({ listResult: arrayUsers });
     })
 };
